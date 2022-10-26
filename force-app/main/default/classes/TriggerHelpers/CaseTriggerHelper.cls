@@ -10,47 +10,58 @@ public without sharing class CaseTriggerHelper {
   }
 
   public static void validateReservation(List<Case> reservations) {
+    Map<Id, Set<Case>> accoutIdToCases = getAccountIdToCases(reservations);
+    Set<Id> accountIds = accoutIdToCases.keySet();
+    List<Account> accounts = [
+      SELECT Id, Name, (SELECT id FROM Contacts)
+      FROM Account
+      WHERE Id IN :accountIds
+    ];
+    for (Account account : accounts) {
+      Integer numberOfContacts = account.Contacts.size();
+      Set<Case> accountReservations = accoutIdToCases.get(account.Id);
+      if (numberOfContacts == 0) {
+        for (Case reservation : accountReservations) {
+          reservation.addError(
+            Label.YouCanNotCreateARequestForAccountWithoutAccount
+          );
+        }
+      } else {
+        for (Case reservation : accountReservations) {
+          if ('Web'.equals(reservation.Origin) && numberOfContacts >= 2) {
+            reservation.addError(
+              Label.WebRequestAreOnlyAllowedToHaveOneAttendee
+            );
+          } else if (
+            'Phone'.equals(reservation.Origin) && numberOfContacts >= 4
+          ) {
+            reservation.addError(
+              Label.PhoneRequestAreOnlyAllowedToHaveThreeAttendee
+            );
+          }
+        }
+      }
+    }
+  }
+
+  private static Map<Id, Set<Case>> getAccountIdToCases(
+    List<Case> reservations
+  ) {
+    Map<Id, Set<Case>> accountIdToCases = new Map<Id, Set<Case>>();
     for (Case reservation : reservations) {
       if (reservation.AccountId != null) {
-        //maybe use agregate SOQL
-        AggregateResult[] groupedResults = [
-          SELECT AccountId, Count(Name) numberOfContacts
-          FROM Contact
-          GROUP BY AccountId
-          HAVING AccountId = :reservation.AccountId
-        ];
-
-        Integer numberOfContacts = groupedResults.size() == 1
-          ? (Integer) groupedResults[0].get('numberOfContacts')
-          : 0;
-
-        if (numberOfContacts == 0) {
-          reservation.addError(
-            'You cannot create a request for accounts without contacts'
-          );
+        Id accountId = reservation.AccountId;
+        if (accountIdToCases.containsKey(accountId)) {
+          accountIdToCases.get(accountId).add(reservation);
         } else {
-          switch on reservation.Origin {
-            when 'Web' {
-              if (numberOfContacts >= 2) {
-                reservation.addError(
-                  'Web request are only allowed to have one attendee'
-                );
-              }
-            }
-            when 'Phone' {
-              if (numberOfContacts >= 4) {
-                reservation.addError(
-                  'Phone request are only allowed to have three attendee'
-                );
-              }
-            }
-          }
+          accountIdToCases.put(accountId, new Set<Case>{ reservation });
         }
       } else {
         reservation.addError(
-          'You cannot create a request without attaching an account'
+          Label.YouCannotCreateARequestWithoutAttachingAnAccount
         );
       }
     }
+    return accountIdToCases;
   }
 }

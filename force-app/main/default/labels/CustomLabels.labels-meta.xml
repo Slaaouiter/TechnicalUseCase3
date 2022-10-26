@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>YouCanNotCreateARequestForAccountWithoutAccount</fullName>
+        <categories>BHotels</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription
+    >YouCanNotCreateARequestForAccountWithoutAccount</shortDescription>
+        <value>You cannot create a request for accounts without contacts</value>
+    </labels>
+    <labels>
+        <fullName>PhoneRequestAreOnlyAllowedToHaveThreeAttendee</fullName>
+        <categories>BHotels</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription
+    >PhoneRequestAreOnlyAllowedToHaveThreeAttendee</shortDescription>
+        <value>Phone request are only allowed to have three attendee</value>
+    </labels>
+    <labels>
+        <fullName>WebRequestAreOnlyAllowedToHaveOneAttendee</fullName>
+        <categories>BHotels</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription
+    >WebRequestAreOnlyAllowedToHaveOneAttendee</shortDescription>
+        <value>Web request are only allowed to have one attendee</value>
+    </labels>
+    <labels>
+        <fullName>YouCannotCreateARequestWithoutAttachingAnAccount</fullName>
+        <categories>BHotels</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription
+    >YouCannotCreateARequestWithoutAttachingAnAccount</shortDescription>
+        <value>You cannot create a request without attaching an account</value>
+    </labels>
+</CustomLabels>

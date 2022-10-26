@@ -1,7 +1,7 @@
 @isTest
 private class CaseTriggerHelperTest {
   @isTest
-  public static void validateReservationRefusesCaseCreationWhenAnAccountIsNotAttachedToACase() {
+  public static void validateReservation_refuses_case_creation_when_it_is_not_related_to_an_account() {
     // Given
     Case request = new Case(
       Origin = 'Phone',
@@ -23,14 +23,14 @@ private class CaseTriggerHelperTest {
       'result.getErrors() array should not be empty'
     );
     System.assertEquals(
-      'You cannot create a request without attaching an account',
+      Label.YouCannotCreateARequestWithoutAttachingAnAccount,
       result.getErrors()[0].getMessage(),
       'The error message should be : You cannot create a request without attaching an account'
     );
   }
 
   @isTest
-  public static void validateReservationRefusesCaseCreationWhenNoContactIsAttachedToAnAccount() {
+  public static void validateReservation_refuses_case_creation_when_the_related_account_has_no_contacts() {
     // Given
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
@@ -59,14 +59,14 @@ private class CaseTriggerHelperTest {
       'result.getErrors() array should not be empty'
     );
     System.assertEquals(
-      'You cannot create a request for accounts without contacts',
+      Label.YouCanNotCreateARequestForAccountWithoutAccount,
       result.getErrors()[0].getMessage(),
       'The error message should be : You cannot create a request for accounts without contacts'
     );
   }
 
   @isTest
-  public static void validateReservationAcceptsbookingEventFromPhoneWithLessThan4Contacts() {
+  public static void validateReservation_accepts_case_creation_with_phone_origin_and_related_to_an_account_with_less_than_4_contacts() {
     // Given
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
@@ -100,14 +100,13 @@ private class CaseTriggerHelperTest {
     Case reservation = new Case(
       Origin = 'Phone',
       Subject = 'Event Booking',
-      Description = 'Book Spots for Company A1 & their 3 employees',
+      Description = 'Book Spots for Salesforce Company & their 3 employees',
       AccountId = salesforce.Id
     );
 
     // When
 
     Test.startTest();
-
     Database.SaveResult result = Database.insert(reservation, false);
     Test.stopTest();
 
@@ -120,7 +119,7 @@ private class CaseTriggerHelperTest {
   }
 
   @isTest
-  public static void validateReservationRefusesEventBookingWhenNumberOfAttendeesIsMoreThanThreeForPhoneCases() {
+  public static void validateReservation_refuses_case_creation_with_phone_origin_and_related_to_an_account_with_more_than_3_contacts() {
     // Given
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
@@ -161,8 +160,8 @@ private class CaseTriggerHelperTest {
     Case request = new Case(
       Origin = 'Phone',
       Subject = 'Event Booking',
-      Description = 'Book Spots for Company A1 & their 4 employees',
-      AccountId = salesforce.ID
+      Description = 'Book Spots for Salesforce Company & their 4 employees',
+      AccountId = salesforce.Id
     );
 
     // When
@@ -180,14 +179,14 @@ private class CaseTriggerHelperTest {
       'result.getErrors() array should not be empty'
     );
     System.assertEquals(
-      'Phone request are only allowed to have three attendee',
+      Label.PhoneRequestAreOnlyAllowedToHaveThreeAttendee,
       result.getErrors()[0].getMessage(),
       'The error message should be : Phone request are only allowed to have three attendee'
     );
   }
 
   @isTest
-  public static void validateReservationAcceptsBookingEventFromTheWebWithLessThan2Accounts() {
+  public static void validateReservation_accepts_case_creation_with_web_origin_and_related_to_an_account_with_one_contact() {
     // Given
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
@@ -205,8 +204,8 @@ private class CaseTriggerHelperTest {
     Case request = new Case(
       Origin = 'Web',
       Subject = 'Event Booking',
-      Description = 'Book One Spot for Company A1',
-      AccountId = salesforce.ID
+      Description = 'Book One Spot for Salesforce Company & 1 employee',
+      AccountId = salesforce.Id
     );
 
     // When
@@ -226,7 +225,7 @@ private class CaseTriggerHelperTest {
   }
 
   @isTest
-  public static void validateReservationRefusesEventBookingWhenNumberOfAttendeesIsMoreThanOneForWebCases() {
+  public static void validateReservation_refuses_case_creation_with_web_origin_and_related_to_an_account_with_more_than_one_contact() {
     // Given
 
     Account salesforce = (Account) TestDataFactory.createSObject(
@@ -261,8 +260,8 @@ private class CaseTriggerHelperTest {
     Case request = new Case(
       Origin = 'Web',
       Subject = 'Event Booking',
-      Description = 'Book Spots for Company A1 & their 3 employees',
-      AccountId = salesforce.ID
+      Description = 'Book Spots for Salesforce Company & their 3 employees',
+      AccountId = salesforce.Id
     );
 
     // When
@@ -280,12 +279,115 @@ private class CaseTriggerHelperTest {
       'result.getErrors() array should not be empty'
     );
     System.assertEquals(
-      'Web request are only allowed to have one attendee',
+      Label.WebRequestAreOnlyAllowedToHaveOneAttendee,
       result.getErrors()[0].getMessage(),
       'The error message should be : Web request are only allowed to have one attendee'
     );
   }
 
+  @isTest
+  public static void validateReservation_test_bulk_mode() {
+    //Given
+    Account salesforce = (Account) TestDataFactory.createSObject(
+      'Account',
+      new Map<String, Object>{ 'Name' => 'Salesforce' }
+    );
+
+    Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Salesforce Contact 1',
+        'AccountId' => salesforce.Id
+      }
+    );
+    Contact salesforce2Contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Salesforce Contact 2',
+        'AccountId' => salesforce.Id
+      }
+    );
+    Contact salesforce3Contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Salesforce Contact 3',
+        'AccountId' => salesforce.Id
+      }
+    );
+    Case salesforce1Request = new Case(
+      Origin = 'Web',
+      Subject = 'Event Booking',
+      Description = 'Book Spots for Salesforce Company & their 3 employees',
+      AccountId = salesforce.Id
+    );
+
+    Case salesforce2Request = new Case(
+      Origin = 'Phone',
+      Subject = 'Event Booking',
+      Description = 'Book Spots for Salesforce Company & their 3 employees',
+      AccountId = salesforce.Id
+    );
+
+    Account altice = (Account) TestDataFactory.createSObject(
+      'Account',
+      new Map<String, Object>{ 'Name' => 'Altice' }
+    );
+
+    Contact altice1contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Altice Contact 1',
+        'AccountId' => altice.Id
+      }
+    );
+
+    Case altice1Request = new Case(
+      Origin = 'Web',
+      Subject = 'Event Booking',
+      Description = 'Book Spots for Altice Company & their employee',
+      AccountId = altice.Id
+    );
+
+    List<Case> requests = new List<Case>{
+      salesforce1Request,
+      salesforce2Request,
+      altice1Request
+    };
+    //When
+
+    Test.startTest();
+
+    List<Database.SaveResult> results = Database.insert(requests, false);
+
+    Test.stopTest();
+
+    //Then
+    List<Case> salesforceRequests = [
+      SELECT Id, Origin, Subject
+      FROM Case
+      WHERE AccountId = :salesforce.Id
+    ];
+    System.assert(
+      salesforceRequests.size() == 1,
+      'Only one reservation for salesforce was created'
+    );
+    Case salesforceRequest = salesforceRequests.get(0);
+    System.assert('Phone'.equals(salesforceRequest.Origin));
+    System.assert('Event Booking'.equals(salesforceRequest.Subject));
+
+    List<Case> alticeRequests = [
+      SELECT Id, Origin, Subject
+      FROM Case
+      WHERE AccountId = :altice.Id
+    ];
+    System.assert(
+      alticeRequests.size() == 1,
+      'Reservation for altice was created'
+    );
+    Case alticeRequest = alticeRequests.get(0);
+    System.assert('Web'.equals(alticeRequest.Origin));
+    System.assert('Event Booking'.equals(alticeRequest.Subject));
+  }
   @isTest
   public static void registerAttendeesLogsErrorWhenExternalSystemIsntWorkingAccordingly() {
     //Given
@@ -311,7 +413,7 @@ private class CaseTriggerHelperTest {
         'Origin' => 'Web',
         'Subject' => 'Event Booking',
         'Description' => 'Book Spots for Company A1 & their 3 employees',
-        'AccountId' => salesforce.ID
+        'AccountId' => salesforce.Id
       }
     );
     //When
@@ -358,7 +460,7 @@ private class CaseTriggerHelperTest {
         'Origin' => 'Web',
         'Subject' => 'Event Booking',
         'Description' => 'Book Spots for Company A1 & their 3 employees',
-        'AccountId' => salesforce.ID
+        'AccountId' => salesforce.Id
       }
     );
     //When
