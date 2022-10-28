@@ -1,5 +1,5 @@
 @isTest
-public without sharing class ReservationCalloutMock implements HttpCalloutMock {
+public class ReservationCalloutMock implements HttpCalloutMock {
   Integer code = 404;
   public ReservationCalloutMock(Integer code) {
     this.code = code;

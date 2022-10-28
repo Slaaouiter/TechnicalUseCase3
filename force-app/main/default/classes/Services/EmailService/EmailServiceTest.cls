@@ -1,18 +1,68 @@
 @isTest
-private without sharing class EmailServiceTest {
+private class EmailServiceTest {
   @isTest
-  public static void sendEmail() {
+  public static void sendEmails_singleMode() {
     //Given
-    String name = 'Ahmed';
-    String email = 'oualidslaaouiter@gmail.com';
-
+    Contact contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Contact',
+        'Email' => 'contact.salesforce@gmail.com',
+        'NotifyExternalSystem__c' => false,
+        'SendEmail__c' => true
+      }
+    );
     //When
     Test.startTest();
-    EmailService.sendEmail(name, email);
+    EmailService.sendEmails(new List<Contact>{ contact });
     Integer invocations = Limits.getEmailInvocations();
     Test.stopTest();
 
     //Then
-    System.assert(invocations == 1, 'An email should be sent to the contact');
+    System.assert(invocations == 1);
+    System.assert(contact.SendEmail__c == false);
+  }
+
+  @isTest
+  public static void sendsEmail_bulkMode() {
+    //Given
+    Contact contact1 = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Contact1',
+        'Email' => 'contact1.salesforce@gmail.com',
+        'NotifyExternalSystem__c' => false,
+        'SendEmail__c' => true
+      }
+    );
+    Contact contact2 = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Contact',
+        'Email' => 'contact2.salesforce@gmail.com',
+        'NotifyExternalSystem__c' => false,
+        'SendEmail__c' => true
+      }
+    );
+    Contact contact3 = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Contact',
+        'Email' => 'contact3.salesforce@gmail.com',
+        'NotifyExternalSystem__c' => false,
+        'SendEmail__c' => true
+      }
+    );
+    //When
+    Test.startTest();
+    EmailService.sendEmails(new List<Contact>{ contact1, contact2, contact3 });
+    Integer invocations = Limits.getEmailInvocations();
+    Test.stopTest();
+
+    //Then
+    System.assert(invocations == 1);
+    System.assert(contact1.SendEmail__c == false);
+    System.assert(contact2.SendEmail__c == false);
+    System.assert(contact3.SendEmail__c == false);
   }
 }

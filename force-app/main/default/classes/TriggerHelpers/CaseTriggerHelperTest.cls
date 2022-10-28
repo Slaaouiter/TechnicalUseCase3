@@ -388,88 +388,95 @@ private class CaseTriggerHelperTest {
     System.assert('Web'.equals(alticeRequest.Origin));
     System.assert('Event Booking'.equals(alticeRequest.Subject));
   }
-  @isTest
-  public static void registerAttendeesLogsErrorWhenExternalSystemIsntWorkingAccordingly() {
-    //Given
-    Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(500));
 
+  @isTest
+  public static void updateRelatedContacts_updates_related_contacts_with_NotifyExternalSystem_to_true_if_the_case_is_closed() {
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
-
-    Contact contact1 = (Contact) TestDataFactory.createSObject(
-      'Contact',
-      new Map<String, Object>{
-        'LastName' => 'Contact 1',
-        'AccountId' => salesforce.Id,
-        'Email' => 'contact1@test.com'
-      }
-    );
-
-    Case request = (Case) TestDataFactory.createSObject(
-      'Case',
-      new Map<String, Object>{
-        'Origin' => 'Web',
-        'Subject' => 'Event Booking',
-        'Description' => 'Book Spots for Company A1 & their 3 employees',
-        'AccountId' => salesforce.Id
-      }
-    );
-    //When
-    Test.startTest();
-    request.Status = 'Closed';
-    update request;
-    Test.stopTest();
-    //Then
-    List<Log__c> logs = [SELECT Message__c, Method__c FROM Log__c];
-    System.assert(logs.size() == 1, 'One log exists');
-    Log__c log = logs.get(0);
-    System.assertEquals(
-      log.Method__c,
-      'registerAttendee',
-      'the method is registerAttendee'
-    );
-    System.assert(
-      log.Message__c.contains('The status code returned was not expected: 500'),
-      'the message doesn\'t contains The status code returned was not expected: 500'
-    );
-  }
-  @isTest
-  public static void registerAttendees() {
-    //Given
-    Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(201));
-
-    Account salesforce = (Account) TestDataFactory.createSObject(
+    Account altice = (Account) TestDataFactory.createSObject(
       'Account',
-      new Map<String, Object>{ 'Name' => 'Salesforce' }
+      new Map<String, Object>{ 'Name' => 'Altice' }
     );
 
-    Contact contact1 = (Contact) TestDataFactory.createSObject(
+    Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
-        'LastName' => 'Contact 1',
+        'LastName' => 'Salesforce 1 Contact',
         'AccountId' => salesforce.Id,
-        'Email' => 'contact1@gmail.com'
+        'Email' => 'salesforce.contact1@gmail.com'
       }
     );
 
-    Case request = (Case) TestDataFactory.createSObject(
+    Contact salesforce2Contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Salesforce 2 Contact',
+        'AccountId' => salesforce.Id,
+        'Email' => 'salesforce.contact2@gmail.com'
+      }
+    );
+
+    Contact altice1Contact = (Contact) TestDataFactory.createSObject(
+      'Contact',
+      new Map<String, Object>{
+        'LastName' => 'Altice 1 Contact',
+        'AccountId' => altice.Id,
+        'Email' => 'altice.contact1@gmail.com'
+      }
+    );
+
+    Case salesforce1Request = (Case) TestDataFactory.createSObject(
+      'Case',
+      new Map<String, Object>{
+        'Origin' => 'Phone',
+        'Subject' => 'Event Booking',
+        'Description' => 'Book Spots for salesforce  & their contacts',
+        'AccountId' => salesforce.Id
+      }
+    );
+
+    Case altice1Request = (Case) TestDataFactory.createSObject(
       'Case',
       new Map<String, Object>{
         'Origin' => 'Web',
         'Subject' => 'Event Booking',
-        'Description' => 'Book Spots for Company A1 & their 3 employees',
-        'AccountId' => salesforce.Id
+        'Description' => 'Book Spots for altice contact',
+        'AccountId' => altice.Id
+      }
+    );
+
+    Case altice2Request = (Case) TestDataFactory.createSObject(
+      'Case',
+      new Map<String, Object>{
+        'Origin' => 'Phone',
+        'Subject' => 'Event Booking',
+        'Description' => 'Book Spots for altice contact',
+        'AccountId' => altice.Id
       }
     );
     //When
     Test.startTest();
-    request.Status = 'Closed';
-    update request;
+    altice1Request.Status = 'Closed';
+    altice2Request.Status = 'Closed';
+    salesforce1Request.Status = 'Closed';
+    List<Case> requestsToUpdate = new List<Case>{
+      altice1Request,
+      altice2Request,
+      salesforce1Request
+    };
+    update requestsToUpdate;
     Test.stopTest();
     //Then
-    List<Log__c> logs = [SELECT Message__c, Method__c FROM Log__c];
-    System.assert(logs.size() == 0, 'error occured & was logged');
+    List<Id> accountIds = new List<Id>{ salesforce.Id, altice.Id };
+    List<Contact> contacts = [
+      SELECT NotifyExternalSystem__c
+      FROM Contact
+      WHERE AccountId IN :accountIds
+    ];
+    for (Contact contact : contacts) {
+      System.assert(contact.NotifyExternalSystem__c == true);
+    }
   }
 }

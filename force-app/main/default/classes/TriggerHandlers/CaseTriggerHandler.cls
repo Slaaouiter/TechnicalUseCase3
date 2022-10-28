@@ -16,6 +16,6 @@ public class CaseTriggerHandler extends TriggerHandler {
   }
 
   public override void afterUpdate() {
-    CaseTriggerHelper.registerAttendees(newCases);
+    CaseTriggerHelper.updateRelatedContacts(newCases);
   }
 }

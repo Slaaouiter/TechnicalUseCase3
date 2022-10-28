@@ -1,12 +1,17 @@
-public without sharing class CaseTriggerHelper {
+public class CaseTriggerHelper {
   private static final String CLOSED = 'Closed';
 
-  public static void registerAttendees(List<Case> reservations) {
-    for (Case reservation : reservations) {
-      if (CLOSED.equals(reservation.Status)) {
-        ExternalSystemService.registerAttendees(reservation);
-      }
+  public static void updateRelatedContacts(List<Case> reservations) {
+    Set<Id> accountIds = getAccountIdsForClosedReservations(reservations);
+    List<Contact> contacts = [
+      SELECT Name, Email
+      FROM Contact
+      WHERE AccountId IN :accountIds
+    ];
+    for (Contact contact : contacts) {
+      contact.NotifyExternalSystem__c = true;
     }
+    update contacts;
   }
 
   public static void validateReservation(List<Case> reservations) {
@@ -63,5 +68,19 @@ public without sharing class CaseTriggerHelper {
       }
     }
     return accountIdToCases;
+  }
+
+  private static Set<Id> getAccountIdsForClosedReservations(
+    List<Case> reservations
+  ) {
+    Set<Id> accountsIds = new Set<Id>();
+    for (Case reservation : reservations) {
+      if (CLOSED.equals(reservation.Status)) {
+        if (reservation.AccountId != null) {
+          accountsIds.add(reservation.AccountId);
+        }
+      }
+    }
+    return accountsIds;
   }
 }
