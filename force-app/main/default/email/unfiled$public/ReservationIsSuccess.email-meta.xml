@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Used to notify contacts about their reservation</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>ReservationIsSuccess</name>
+    <style>none</style>
+    <subject>Reservation Status</subject>
+    <textOnly>Congratulation {!Contact.Name} ! 
+
+Your reservation is a success. 
+
+We can&apos;t wait to see you. 
+
+We will prepare snacks for you, so make sure you don&apos;t miss out.
+
+
+Kind regards,</textOnly>
+    <type>custom</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>
