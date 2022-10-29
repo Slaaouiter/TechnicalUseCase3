@@ -1,4 +1,4 @@
-public class HttpService {
+public class HttpUtils {
   public static void notifyExternalSystem(List<Contact> contacts) {
     for (Contact contact : contacts) {
       registerContact(contact);
@@ -7,7 +7,7 @@ public class HttpService {
   private static void registerContact(Contact contact) {
     Http http = new Http();
     HttpRequest request = new HttpRequest();
-    request.setEndpoint('callout:Reservation_System_API'); //Named Credential
+    request.setEndpoint('callout:Reservation_System_API');
     request.setMethod('POST');
     request.setHeader('Content-Type', 'application/json;charset=UTF-8');
     request.setBody('{"name":"' + contact.Name + '-' + contact.Email + '}');

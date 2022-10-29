@@ -1,7 +1,7 @@
 @isTest
-private class EmailServiceTest {
+private class EmailUtilsTest {
   @isTest
-  public static void sendEmails_singleMode() {
+  public static void sendEmailsSingleMode() {
     //Given
     Contact contact = (Contact) TestDataFactory.createSObject(
       'Contact',
@@ -12,19 +12,20 @@ private class EmailServiceTest {
         'SendEmail__c' => true
       }
     );
+
     //When
     Test.startTest();
-    EmailService.sendEmails(new List<Contact>{ contact });
+    EmailUtils.sendEmails(new List<Contact>{ contact });
     Integer invocations = Limits.getEmailInvocations();
     Test.stopTest();
 
     //Then
     System.assert(invocations == 1);
-    System.assert(contact.SendEmail__c == false);
+    System.assert(!contact.SendEmail__c);
   }
 
   @isTest
-  public static void sendsEmail_bulkMode() {
+  public static void sendsEmailBulkMode() {
     //Given
     Contact contact1 = (Contact) TestDataFactory.createSObject(
       'Contact',
@@ -53,16 +54,17 @@ private class EmailServiceTest {
         'SendEmail__c' => true
       }
     );
+
     //When
     Test.startTest();
-    EmailService.sendEmails(new List<Contact>{ contact1, contact2, contact3 });
+    EmailUtils.sendEmails(new List<Contact>{ contact1, contact2, contact3 });
     Integer invocations = Limits.getEmailInvocations();
     Test.stopTest();
 
     //Then
     System.assert(invocations == 1);
-    System.assert(contact1.SendEmail__c == false);
-    System.assert(contact2.SendEmail__c == false);
-    System.assert(contact3.SendEmail__c == false);
+    System.assert(!contact1.SendEmail__c);
+    System.assert(!contact2.SendEmail__c);
+    System.assert(!contact3.SendEmail__c);
   }
 }

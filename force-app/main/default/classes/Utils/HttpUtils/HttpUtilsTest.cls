@@ -1,13 +1,15 @@
 @isTest
-private class HttpServiceTest {
+private class HttpUtilsTest {
   @isTest
-  public static void notifyExternalSystem_succed_calling_external_system_and_updates_contacts() {
+  public static void notifyExternalSystemCallsExternalSystemAndUpdatesContacts() {
     //Given
     Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(201));
+
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
@@ -31,26 +33,29 @@ private class HttpServiceTest {
 
     //When
     Test.startTest();
-    HttpService.notifyExternalSystem(
+    HttpUtils.notifyExternalSystem(
       new List<Contact>{ salesforce1Contact, salesforce2Contact }
     );
     Test.stopTest();
-    //Then
-    System.assert(salesforce1Contact.NotifyExternalSystem__c == false);
-    System.assert(salesforce1Contact.SendEmail__c == true);
 
-    System.assert(salesforce2Contact.NotifyExternalSystem__c == false);
-    System.assert(salesforce2Contact.SendEmail__c == true);
+    //Then
+    System.assert(!salesforce1Contact.NotifyExternalSystem__c);
+    System.assert(salesforce1Contact.SendEmail__c);
+
+    System.assert(!salesforce2Contact.NotifyExternalSystem__c);
+    System.assert(salesforce2Contact.SendEmail__c);
   }
 
   @isTest
-  public static void notifyExternalSystem_fails_calling_external_system_and_does_not_update_contacts() {
+  public static void notifyExternalSystemFailsCallingExternalSystemAndDoesNotUpdateContacts() {
     //Given
     Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(500));
+
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
@@ -61,13 +66,15 @@ private class HttpServiceTest {
         'SendEmail__c' => false
       }
     );
+
     //When
     Test.startTest();
-    HttpService.notifyExternalSystem(new List<Contact>{ salesforce1Contact });
+    HttpUtils.notifyExternalSystem(new List<Contact>{ salesforce1Contact });
     Test.stopTest();
+
     //Then
-    System.assert(salesforce1Contact.NotifyExternalSystem__c == true);
-    System.assert(salesforce1Contact.SendEmail__c == false);
+    System.assert(salesforce1Contact.NotifyExternalSystem__c);
+    System.assert(!salesforce1Contact.SendEmail__c);
 
     List<Log__c> logs = [SELECT Message__c, Method__c FROM Log__c];
     System.assert(logs.size() == 1);

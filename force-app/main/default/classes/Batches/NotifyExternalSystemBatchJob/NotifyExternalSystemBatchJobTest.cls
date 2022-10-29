@@ -1,12 +1,13 @@
 @isTest
 private class NotifyExternalSystemBatchJobTest {
   @isTest
-  public static void notifies_external_system_if_contact_is_eligible_and_engage_into_sending_email() {
+  public static void notifiesExternalSystemIfContactIsEligibleAndEngagesSendingEmails() {
     Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(201));
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
@@ -57,12 +58,15 @@ private class NotifyExternalSystemBatchJobTest {
   }
 
   @isTest
-  public static void does_not_notify_external_system_if_contact_is_not_eligible() {
+  public static void doesNotNotifyExternalSystemIfContactIsNotEligible() {
+    //Given
     Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(201));
+
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact salesforce1Contact = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
@@ -73,11 +77,14 @@ private class NotifyExternalSystemBatchJobTest {
         'SendEmail__c' => false
       }
     );
+
+    //When
     Test.startTest();
     NotifyExternalSystemBatchJob batch = new NotifyExternalSystemBatchJob();
     Id jobId = Database.executeBatch(batch, 100);
     Test.stopTest();
 
+    //Then
     System.assertEquals(
       0,
       [
@@ -92,7 +99,8 @@ private class NotifyExternalSystemBatchJobTest {
   }
 
   @isTest
-  public static void does_not_engage_sending_email_if_external_system_is_down() {
+  public static void doesNotEngageSendingEmailIfExternalSystemIsDown() {
+    //Given
     Test.setMock(HttpCalloutMock.class, new ReservationCalloutMock(500));
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
@@ -108,11 +116,14 @@ private class NotifyExternalSystemBatchJobTest {
         'SendEmail__c' => false
       }
     );
+
+    //When
     Test.startTest();
     NotifyExternalSystemBatchJob batch = new NotifyExternalSystemBatchJob();
     Id jobId = Database.executeBatch(batch, 100);
     Test.stopTest();
 
+    //Then
     System.assertEquals(
       0,
       [

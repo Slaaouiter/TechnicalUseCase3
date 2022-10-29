@@ -4,7 +4,7 @@ public class NotifyExternalSystemBatchJob implements Database.Batchable<sObject>
     return Database.getQueryLocator(soqlQuery);
   }
   public void execute(Database.BatchableContext BC, List<Contact> contacts) {
-    HttpService.notifyExternalSystem(contacts);
+    HttpUtils.notifyExternalSystem(contacts);
     update contacts;
   }
   public void finish(Database.BatchableContext BC) {

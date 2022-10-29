@@ -1,4 +1,4 @@
-public class EmailService {
+public class EmailUtils {
   public static void sendEmails(List<Contact> contacts) {
     List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
     EmailTemplate template = [

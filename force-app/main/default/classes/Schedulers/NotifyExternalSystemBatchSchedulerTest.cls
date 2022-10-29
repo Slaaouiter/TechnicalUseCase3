@@ -1,17 +1,19 @@
 @isTest
-public class NotifyExternalSystemBatchSchedulerTest {
+private class NotifyExternalSystemBatchSchedulerTest {
   @isTest
-  public static void test() {
+  public static void testNotifyExternalSystemBatchScheduler() {
     //Given
     String CRON_EXP = '0 0 0 1 8 ? 2023';
 
     Test.startTest();
+
     //When
     String jobId = System.schedule(
       'Notify External System',
       CRON_EXP,
-      new NotifyExternalSystemBatchJobScheduler()
+      new NotifyExternalSystemBatchScheduler()
     );
+
     //Then
     CronTrigger cronTrigger = [
       SELECT Id, CronExpression, TimesTriggered, NextFireTime

@@ -12,10 +12,10 @@ public class CaseTriggerHandler extends TriggerHandler {
   }
 
   public override void beforeInsert() {
-    CaseTriggerHelper.validateReservation(newCases);
+    CaseTriggerHelper.validateCases(newCases);
   }
 
   public override void afterUpdate() {
-    CaseTriggerHelper.updateRelatedContacts(newCases);
+    CaseTriggerHelper.updateRelatedContacts(oldIdToCase, newCases);
   }
 }

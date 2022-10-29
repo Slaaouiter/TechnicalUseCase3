@@ -1,11 +1,12 @@
 @isTest
 private class SendEmailBatchJobTest {
   @isTest
-  public static void sends_emails_if_contacts_are_eligible() {
+  public static void sendsEmailsIfContactsAreEligible() {
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact contact1 = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
@@ -54,11 +55,13 @@ private class SendEmailBatchJobTest {
       ]
     );
   }
-  public static void does_not_send_emails_if_contacts_are_not_eligible() {
+
+  public static void doesNotSendEmailsIfContactsAreNotEligible() {
     Account salesforce = (Account) TestDataFactory.createSObject(
       'Account',
       new Map<String, Object>{ 'Name' => 'Salesforce' }
     );
+
     Contact contact1 = (Contact) TestDataFactory.createSObject(
       'Contact',
       new Map<String, Object>{
